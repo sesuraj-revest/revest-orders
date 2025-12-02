@@ -70,6 +70,6 @@ export class AuthService {
     const user = await this.validateUser(dto.email, dto.password);
     const payload = { sub: user.id, email: user.email, role: user.role };
     const accessToken = await this.jwtService.signAsync(payload);
-    return { accessToken };
+    return { accessToken, user  };
   }
 }
