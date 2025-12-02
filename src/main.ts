@@ -6,7 +6,13 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
   app.setGlobalPrefix('api/os'); // optional
-
+ // --- ENABLE CORS: Allow ALL Origins ---
+  app.enableCors({
+    origin: '*',          // allow all origins
+    methods: '*',         // allow all methods
+    allowedHeaders: '*',  // allow all headers
+    credentials: true,    // allow cookies / Authorization header
+  });
   const config = new DocumentBuilder()
     .setTitle('Orders Service')
     .setDescription('API docs for Orders')
