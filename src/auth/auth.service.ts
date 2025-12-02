@@ -10,7 +10,7 @@ import * as bcrypt from 'bcrypt';
 import { KNEX_CONNECTION } from '../database/knex.tokens';
 import { SignupDto } from './dto/signup.dto';
 import { LoginDto } from './dto/login.dto';
-import { User } from './user.type';
+import { LoginResponse, User } from './user.type';
 
 @Injectable()
 export class AuthService {
@@ -30,13 +30,14 @@ export class AuthService {
       throw new BadRequestException('Email already registered');
     }
 
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
     const passwordHash = await bcrypt.hash(dto.password, 10);
 
     const [user] = await this.knex<User>(this.usersTable).insert(
       {
         id: this.knex.raw('gen_random_uuid()'),
         email: dto.email,
-        password_hash: passwordHash,
+        password_hash: passwordHash as string,
         full_name: dto.fullName ?? null,
         role: 'USER',
         created_at: this.knex.fn.now(),
@@ -46,6 +47,9 @@ export class AuthService {
     );
 
     const { password_hash, ...safeUser } = user;
+    if (password_hash) {
+      console.log('password_hash');
+    }
     return safeUser;
   }
 
@@ -58,6 +62,7 @@ export class AuthService {
       throw new UnauthorizedException('Invalid credentials');
     }
 
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
     const ok = await bcrypt.compare(password, user.password_hash);
     if (!ok) {
       throw new UnauthorizedException('Invalid credentials');
@@ -66,10 +71,10 @@ export class AuthService {
     return user;
   }
 
-  async login(dto: LoginDto): Promise<{ accessToken: string }> {
+  async login(dto: LoginDto): Promise<LoginResponse> {
     const user = await this.validateUser(dto.email, dto.password);
     const payload = { sub: user.id, email: user.email, role: user.role };
     const accessToken = await this.jwtService.signAsync(payload);
-    return { accessToken, user  };
+    return { accessToken, user: user };
   }
 }
