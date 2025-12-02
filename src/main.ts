@@ -6,12 +6,12 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
   app.setGlobalPrefix('api/os'); // optional
- // --- ENABLE CORS: Allow ALL Origins ---
+  // --- ENABLE CORS: Allow ALL Origins ---
   app.enableCors({
-    origin: '*',          // allow all origins
-    methods: '*',         // allow all methods
-    allowedHeaders: '*',  // allow all headers
-    credentials: true,    // allow cookies / Authorization header
+    origin: '*', // allow all origins
+    methods: '*', // allow all methods
+    allowedHeaders: '*', // allow all headers
+    credentials: true, // allow cookies / Authorization header
   });
   const config = new DocumentBuilder()
     .setTitle('Orders Service')
@@ -20,10 +20,10 @@ async function bootstrap() {
     .build();
 
   const document = SwaggerModule.createDocument(app, config);
-  SwaggerModule.setup('docs', app, document); // http://localhost:3001/docs
+  SwaggerModule.setup('api/os/docs', app, document); // http://localhost:3001/docs
 
   await app.listen(3002);
   console.log('Product service running on http://localhost:3002');
-  console.log('Swagger docs at        http://localhost:3002/docs');
+  console.log('Swagger docs at        http://localhost:3002/api/os/docs');
 }
 bootstrap();
