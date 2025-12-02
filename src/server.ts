@@ -1,23 +1,35 @@
 import Fastify from 'fastify';
 import fastifyHttpProxy from '@fastify/http-proxy';
+import cors from '@fastify/cors';
 
 const fastify = Fastify({
   logger: true,
 });
 
-// 1) Proxy /api/os → localhost:3001
+// Enable CORS for all routes
+fastify.register(cors, {
+  origin: '*', // allow all origins
+  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['*'],
+  credentials: true,
+});
+
+// Common list of HTTP methods WITHOUT OPTIONS
+const proxyMethods = ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'HEAD'] as const;
+
+// 1) Proxy /api/os** → localhost:3001
 fastify.register(fastifyHttpProxy, {
   upstream: 'http://localhost:3002',
-  prefix: '/api/os', // only this path
-  rewritePrefix: '/api/os', // keep same path on upstream (optional; can omit)
+  prefix: '/api/os', // matches /api/os and subpaths
+  rewritePrefix: '/api/os', // keep same path on upstream
+  httpMethods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'HEAD'], // IMPORTANT: no OPTIONS here
 });
 
 // 2) Proxy everything else → localhost:3002
 fastify.register(fastifyHttpProxy, {
   upstream: 'http://localhost:3001',
   prefix: '/', // catch-all
-  // You can tweak this if localhost:3002 expects paths without leading `/`
-  // rewritePrefix: "/",
+  httpMethods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'HEAD'], // IMPORTANT: no OPTIONS here either
 });
 
 const start = async () => {
