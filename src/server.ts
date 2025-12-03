@@ -15,11 +15,10 @@ fastify.register(cors, {
 });
 
 // Common list of HTTP methods WITHOUT OPTIONS
-const proxyMethods = ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'HEAD'] as const;
 
 // 1) Proxy /api/os** → localhost:3001
 fastify.register(fastifyHttpProxy, {
-  upstream: 'http://localhost:3002',
+  upstream: 'https://revest-orders.onrender.com',
   prefix: '/api/os', // matches /api/os and subpaths
   rewritePrefix: '/api/os', // keep same path on upstream
   httpMethods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'HEAD'], // IMPORTANT: no OPTIONS here
@@ -27,7 +26,7 @@ fastify.register(fastifyHttpProxy, {
 
 // 2) Proxy everything else → localhost:3002
 fastify.register(fastifyHttpProxy, {
-  upstream: 'http://localhost:3001',
+  upstream: 'https://revest-products.onrender.com',
   prefix: '/', // catch-all
   httpMethods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'HEAD'], // IMPORTANT: no OPTIONS here either
 });
